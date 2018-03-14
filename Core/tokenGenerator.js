@@ -66,13 +66,15 @@ function generateToken(found, callback){
         var encstring ='1-'+config.Host.rescheduletries+"-"+monthcombo+"-"+year;
 
 
-        //console.log('Token: '+ encstring);
+
         encstring = crypto.createHash('md5').update(encstring).digest('hex');
+        console.log('Token: '+ encstring);
         //console.log('Token: '+ encstring);
         //console.log('Encrypted Token: '+ Encrypt(encstring,'DuoS123412341234'));
         //var key = config.Host.TenantName + "_BILL_HASH_TOKEN";
         var key =  "1_BILL_HASH_TOKEN";
         redisToeknValidator.save(key , encstring, function(err, found){
+
             if(err){
                 console.log('REDIS ERROR');
                 callback(null);

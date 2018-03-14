@@ -57,7 +57,8 @@ module.exports = {
         "diameterPort": "5555",
         "tenantBilling" : true,
         "userBilling" : false,
-        "TenantName": "Dialog"
+        "TenantName": "Dialog",
+		"emailUserArray" : ["kalana@duosoftware.com","champaka@duosoftware.com"]
     },
 
     "LBServer" : {

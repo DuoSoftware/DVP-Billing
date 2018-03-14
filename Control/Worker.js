@@ -40,6 +40,8 @@ module.exports.PublishToQueue = function(messageType,sendObj ) {
 
     try {
         if (sendObj) {
+
+            console.log("sending...");
             queueConnection.publish(messageType, sendObj, {
                 contentType: 'application/json'
             });

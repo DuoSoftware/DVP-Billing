@@ -5,7 +5,6 @@
 var messageFormatter = require('dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js');
 var logger = require('dvp-common/LogHandler/CommonLogHandler.js').logger;
 var DbConn = require('dvp-dbmodels');
-var moment = require('moment');
 var Sequelize = require('sequelize');
 
 
@@ -109,11 +108,11 @@ module.exports.CustomerCycleById = function (customer, res) {
             jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", false, 0);
         }
 
-        logger.info('[CustomerCycleById] -  Billing - [%s] .', jsonString);
+        //logger.info('[CustomerCycleById] -  Billing - [%s] .', jsonString);
         res(null,jsonString);
     }).error(function (err) {
         var jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
-        logger.error('[CustomerCycleById] - [%s] ', jsonString);
+        //logger.error('[CustomerCycleById] - [%s] ', jsonString);
         res(err,jsonString);
     });
 };

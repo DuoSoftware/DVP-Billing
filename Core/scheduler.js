@@ -35,7 +35,7 @@ function billing(){
      */
 
 
-    /*TODO
+    /*DONE
      *       Tenannt wise billing : 1 tenant has multiple Organization, those organizations should be
      *       billed seperately and added in to one bill,
      *       this should not contain wallet methods or account disabling methods
@@ -45,24 +45,25 @@ function billing(){
     redisTokenValidation.get('TENANT_BILLED_STATUS',function(err, status){
 
         var billing;
-        if(status==false){
+        console.log('Billed For month :'+status);
+        if(status == 'false'|| status == false){
             bill(1);
             billing = schedule.scheduleJob('1 0 '+config.Host.billingDate +' 1-12 *', function(){
-                //var billing = schedule.scheduleJob('0 3 8 7 1-12 *', function(){
+            //billing = schedule.scheduleJob('30 24 11 31 1-12 *', function(){
                 console.log('billing is running...');
                 bill(1);
             });
         }
-        else if(status==true){
+        else if(status == 'true' || status== true){
             billing = schedule.scheduleJob('1 0 '+config.Host.billingDate +' 1-12 *', function(){
                 //var billing = schedule.scheduleJob('0 3 8 7 1-12 *', function(){
                 console.log('billing is running...');
                 bill(1);
             });
         }
-        else if (status = null){
+        else if (status == null){
             billing = schedule.scheduleJob('1 0 '+config.Host.billingDate +' 1-12 *', function(){
-                //var billing = schedule.scheduleJob('0 3 8 7 1-12 *', function(){
+            //billing = schedule.scheduleJob('10 18 11 31 1-12 *', function(){
                 console.log('billing is running...');
                 bill(1);
             });
@@ -178,7 +179,6 @@ function bill(count){
                                     }
                                 if(index == bills.length -1){
 
-                                    //TODO : Get Super Users and send mail to all
 
                                     var superUserUrl = format("http://{0}/DVP/API/{1}/Tenant/Monitoring/superUsers", config.Services.userServiceHost, config.Services.userServiceVersion);
                                     if (validator.isIP(config.Services.userServiceHost))
@@ -195,17 +195,24 @@ function bill(count){
                                     }, function (_error, _response, datax) {
 
 
-                                        var superUserEmailArray = [];
+                                        var superUserEmailArray = config.Host.emailUserArray;
                                         var superUserslist= datax.Result;
                                         for(var l in superUserslist){
-                                            superUserEmailArray.push(superUserslist[l].email.contact)
+                                            superUserEmailArray.push(superUserslist[l].email.contact);
+                                            /*if( l == superUserEmailArray.length -1 ){
+                                                superUserEmailArray.push('kalana@duosoftware.com');
+                                                superUserEmailArray.push('champaka@duosoftware.com');
+                                                superUserEmailArray.push('chandana@duosoftware.com');
+                                                superUserEmailArray.push('sukitha@duosoftware.com');
+                                            }*/
                                         }
 
                                         console.log("Super Users for tenant are \n"+superUserEmailArray);
 
                                         var sendObj = {
-                                            //"to" : superUserEmailArray,
-                                            "to" : "kalana@duosoftware.com",
+                                            "to" : superUserEmailArray,
+                                            //"to" : "kalana@duosoftware.com",
+                                            //"to" : "vmkdemel@gmail.com",
                                             "company": 0,
                                             "tenant": 1,
                                             "from" : "Billing",
@@ -237,13 +244,18 @@ function bill(count){
                                                 "BillToken" :found
                                             };
 
+                                            //console.log("Sending to mail queue...");
                                             //console.log(sendObj);
 
-                                            PublishToQueue("EMAILOUT", sendObj);
+                                            //PublishToQueue("EMAILOUT", sendObj);
+
+                                            oneTimeMail(sendObj);
                                             redisTokenValidation.save('TENANT_BILLED_STATUS', true, function(){});
 
                                             bills = [];
                                             tenantBilled = false;
+
+                                            console.log(sendObj);
                                             recurrenceSchedulePaymentTenant(sendObj);
                                         })
 
@@ -285,7 +297,7 @@ function billEach(datax){
     return {
         invoke : function (callback){
 
-            //TODO :
+            //DONE :
             // : all results should be sent as array to the next step
             // : Disable all wallet ralated activities
             // : Do not Disable account
@@ -901,6 +913,21 @@ function billEach(datax){
 }
 
 
+function oneTimeMail(data){
+
+    console.log('Executing one time rule');
+    var oneTimeRule = new schedule.RecurrenceRule();
+    oneTimeRule.second = 1;
+
+
+    var oneTimeTask = schedule.scheduleJob(oneTimeRule, function(){
+        PublishToQueue("EMAILOUT", data);
+        oneTimeTask.cancel();
+    });
+
+
+}
+
 function recurrenceSchedulePaymentTenant(data){
 
     var relCompany = 0;
@@ -909,7 +936,7 @@ function recurrenceSchedulePaymentTenant(data){
     logger.info('[RESCHEDULE]: '+relTenant+':'+'1');
     var rule = new schedule.RecurrenceRule();
     rule.hour = (config.Host.reschedulefreqency*24)/config.Host.rescheduletries;
-    //rule.second = 1;
+    //rule.second = 30;
     var count;
     if(data.hasOwnProperty('count')){
         count = data.count;
