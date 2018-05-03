@@ -13,8 +13,6 @@
     "cookie-parser": "~1.4.3",
     "crypto": "0.0.3",
     "debug": "~2.2.0",
-    "diameter": "^0.7.0",
-    "diameter-avp-object": "git+https://github.com/atesgoral/diameter-avp-object.git",
     "dvp-common": "1.1.0",
     "dvp-dbmodels": "2.1.0",
     "express": "~4.13.4",
