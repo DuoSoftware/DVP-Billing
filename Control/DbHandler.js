@@ -6,11 +6,21 @@ var messageFormatter = require('dvp-common/CommonMessageGenerator/ClientMessageJ
 var logger = require('dvp-common/LogHandler/CommonLogHandler.js').logger;
 var DbConn = require('dvp-dbmodels');
 var Sequelize = require('sequelize');
+var util = require('util');
 
 
 /*-------------- Channel Master Data --------------------*/
 module.exports.CreateCustomerBillRecord = function (customer, callback) {
     var datetime = new Date();
+
+    if(customer.data && util.isObject(customer))
+    {
+        var dataString = JSON.stringify(customer.data);
+        customer.data=dataString;
+
+
+    }
+
     DbConn.CustomerBillRecord
         .create(
             {
@@ -40,6 +50,15 @@ module.exports.UpdateCustomerBillRecord = function (customer, callback) {
     if(!customer.firstbilling){
         customer.firstbilling = null;
     }
+
+    if(customer.data && util.isObject(customer))
+    {
+        var dataString = JSON.stringify(customer.data);
+        customer.data=dataString;
+
+
+    }
+
     DbConn.CustomerBillRecord
         .update(
             {
@@ -62,46 +81,54 @@ module.exports.UpdateCustomerBillRecord = function (customer, callback) {
 };
 
 /*module.exports.UpdateCustomerBillToken = function (customer, callback) {
-    var datetime = new Date();
+ var datetime = new Date();
 
-    DbConn.CustomerBillRecord
-        .update(
-            {
-                BillToken: customer.billToken,
-                updatedAt:datetime,
-                Status:customer.status
+ DbConn.CustomerBillRecord
+ .update(
+ {
+ BillToken: customer.billToken,
+ updatedAt:datetime,
+ Status:customer.status
 
-            }
-            ,
-            {
-                where: [{TenantId: customer.tenant}, {CompanyId: customer.company}]
-            }
-        ).then(function (cmp) {
-        var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
-        logger.info('[CustomerUpdateBillToken] -  Billing - [%s] .', jsonString);
-        callback(null, jsonString);
-    }).error(function (err) {
-        var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, err);
-        logger.info('[CustomerUpdateBillToken] -  Billing - [%s] .', jsonString);
-        callback(err, jsonString);
-    });
-};*/
+ }
+ ,
+ {
+ where: [{TenantId: customer.tenant}, {CompanyId: customer.company}]
+ }
+ ).then(function (cmp) {
+ var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
+ logger.info('[CustomerUpdateBillToken] -  Billing - [%s] .', jsonString);
+ callback(null, jsonString);
+ }).error(function (err) {
+ var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, err);
+ logger.info('[CustomerUpdateBillToken] -  Billing - [%s] .', jsonString);
+ callback(err, jsonString);
+ });
+ };*/
 
 module.exports.CustomerCycleById = function (customer, res) {
     var datetime = new Date();
     DbConn.CustomerBillRecord
         .find({
-        where: [{customer:  customer.customer}, {TenantId: customer.tenant}, {CompanyId: customer.company}]
-    }).then(function (CustomerBillRecord) {
+            where: [{customer:  customer.customer}, {TenantId: customer.tenant}, {CompanyId: customer.company}]
+        }).then(function (CustomerBillRecord) {
         var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, 0);
         if (CustomerBillRecord) {
+
+            if(CustomerBillRecord.OtherJsonData)
+            {
+                var jObj = JSON.parse(CustomerBillRecord.OtherJsonData);
+                CustomerBillRecord.OtherJsonData=jObj;
+            }
+
             var data = {
                 "CompanyId": CustomerBillRecord.CompanyId,
                 "Cycle": CustomerBillRecord.Cycle,
                 "FirstBilling" : CustomerBillRecord.FirstBilling,
                 "BuyDate" : CustomerBillRecord.BuyDate,
-                "OtherJsonData" : CustomerBillRecord.OtherJsonData,
+                "OtherJsonData" : CustomerBillRecord.OtherJsonData
             };
+
             jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, data);
         }
         else {
@@ -120,6 +147,13 @@ module.exports.CustomerCycleById = function (customer, res) {
 /*-------------- Channel Master Data --------------------*/
 module.exports.CreateRatingRecord = function (provider, data, callback) {
     //console.log(provider)
+
+    if(data && util.isObject(data))
+    {
+        var dataString = JSON.stringify(data);
+        data=dataString;
+    }
+
     DbConn.CallRatings
         .upsert(
             {
@@ -138,7 +172,20 @@ module.exports.getRatingRecords = function (res) {
         .findAll({}).then(function (CallRatings) {
         var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, 0);
         if (CallRatings) {
-            var data = CallRatings;
+
+
+
+            var data = CallRatings.map(function (item) {
+
+                if(item.dataValues.PaymentData)
+                {
+                    var paymentObj = JSON.parse(item.dataValues.PaymentData);
+                    item.dataValues.PaymentData=paymentObj;
+                }
+                return item;
+            });
+
+
             jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, data);
         }
         else {
@@ -151,3 +198,4 @@ module.exports.getRatingRecords = function (res) {
         res(err,jsonString);
     });
 };
+
