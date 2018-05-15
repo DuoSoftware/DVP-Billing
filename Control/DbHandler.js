@@ -177,10 +177,10 @@ module.exports.getRatingRecords = function (res) {
 
             var data = CallRatings.map(function (item) {
 
-                if(item.dataValues.PaymentData)
+                if(item.PaymentData)
                 {
-                    var paymentObj = JSON.parse(item.dataValues.PaymentData);
-                    item.dataValues.PaymentData=paymentObj;
+                    var paymentObj = JSON.parse(item.PaymentData);
+                    item.PaymentData=paymentObj;
                 }
                 return item;
             });
