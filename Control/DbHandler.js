@@ -38,6 +38,10 @@ module.exports.CreateCustomerBillRecord = function (customer, callback) {
                 updatedAt:datetime
             }
         ).then(function (cmp) {
+            if(cmp.OtherJsonData)
+            {
+                cmp.OtherJsonData=JSON.parse(cmp.OtherJsonData);
+            }
         callback(undefined, cmp);
     }).error(function (err) {
         callback(err, undefined);
@@ -117,8 +121,8 @@ module.exports.CustomerCycleById = function (customer, res) {
 
             if(CustomerBillRecord.OtherJsonData)
             {
-                var jObj = JSON.parse(CustomerBillRecord.OtherJsonData);
-                CustomerBillRecord.OtherJsonData=jObj;
+                CustomerBillRecord.OtherJsonData = JSON.parse(CustomerBillRecord.OtherJsonData);
+
             }
 
             var data = {
@@ -161,6 +165,11 @@ module.exports.CreateRatingRecord = function (provider, data, callback) {
                 PaymentData : data
             }
         ).then(function (cmp) {
+
+            if(cmp.PaymentData)
+            {
+                cmp.PaymentData=JSON.parse(PaymentData);
+            }
         callback(undefined, cmp);
     }).error(function (err) {
         callback(err, undefined);
@@ -173,14 +182,11 @@ module.exports.getRatingRecords = function (res) {
         var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, 0);
         if (CallRatings) {
 
-
-
             var data = CallRatings.map(function (item) {
 
                 if(item.PaymentData)
                 {
-                    var paymentObj = JSON.parse(item.PaymentData);
-                    item.PaymentData=paymentObj;
+                    item.PaymentData = JSON.parse(item.PaymentData);
                 }
                 return item;
             });
