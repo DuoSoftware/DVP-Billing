@@ -5,7 +5,7 @@ module.exports = {
     "DB": {
         "Type": "postgres",
         "User": "",
-        "Password": "122",
+        "Password": "",
         "Port": 5432,
         "Host": "",
         "Database": ""
