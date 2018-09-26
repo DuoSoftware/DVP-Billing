@@ -32,7 +32,7 @@ function execute(req,res,next){
 
     console.log(req.body);
 
-    if(config.Host.userBilling){
+    if(config.Host.userBilling && (config.Host.userBilling == true || config.Host.userBilling == "true")){
         var walletURL = format("http://{0}/DVP/API/{1}/PaymentManager/Customer/Wallet/Credit",  config.Services.walletServiceHost,  config.Services.walletServiceVersion);
         if (validator.isIP(config.Services.walletServiceHost)) {
             //wallerURL = format("http://{0}:{1}/DVP/API/{2}/PaymentManager/Customer/"+userid+"/Wallet/Credit", config.Services.walletServiceHost, config.Services.walletServicePort, config.Services.walletServiceVersion);
@@ -237,7 +237,7 @@ function execute(req,res,next){
         });
 
     }
-    else if(config.Host.tenantBilling){
+    else if(config.Host.tenantBilling && (config.Host.tenantBilling == true || config.Host.tenantBilling == "true")){
 
         var date = new Date();
         var day  = date.getDate();
