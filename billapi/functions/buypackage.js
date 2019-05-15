@@ -65,7 +65,7 @@ function execute(req,res,next){
         console.log(req.body.units);
         console.log(remaining_days);
 
-        amount = amount*100;
+        amount = Math.ceil(amount*100);
 
         logger.info('[BUY PACKAGE]:Amount to be deducted - %s ', amount);
 
