@@ -76,7 +76,7 @@ function execute(req,res,next){
                 Authorization: req.headers.authorization,
                 companyinfo: format("{0}:{1}", tenant , company)
             },
-            json: {"Amount": amount, "Reason": req.body.name+':'+req.body.type, "name":req.body.username}
+            json: {"Amount": amount, "TxnType": "Packages", "Reason": req.body.name+':'+req.body.type, "name":req.body.username}
         }, function (_error, _response, datax) {
             //console.log(datax);
             if (datax && datax.IsSuccess) {
