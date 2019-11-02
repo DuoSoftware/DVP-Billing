@@ -22,7 +22,7 @@
     "ioredis": "^3.1.1",
     "jade": "~1.11.0",
     "libphonenumber": "0.0.10",
-    "morgan": "~1.7.0",
+    "morgan": "~1.9.1",
     "node-schedule": "^1.2.0",
     "q": "^1.4.1",
     "rand-token": "^0.3.0",
