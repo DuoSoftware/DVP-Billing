@@ -9,18 +9,18 @@ var config = require('config');
 function validateToken(req,res,next){
 
     var customer = {};
-    customer.company =parseInt(req.user.company);
-    customer.tenant = parseInt(req.user.tenant);
-    customer.customer = (req.user.company).toString();
+    //customer.company =parseInt(req.user.company);
+    //customer.tenant = parseInt(req.user.tenant);
+    //customer.customer = (req.user.company).toString();
     customer.billToken = req.body.billToken;
 
-    var key = "1_BILL_TOKEN";
+    var key = config.Tenant.activeTenant + "_BILL_TOKEN";
 
 
     tokenGenerator.validateToken(customer, function(found){
         res.send(JSON.parse(found));
         if(JSON.parse(found).IsSuccess){
-            redisTokenValidation.save(key,customer.billToken );
+            redisTokenValidation.save(key,customer.billToken, null, 7776000);
         }
         res.end();
     });

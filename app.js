@@ -32,7 +32,7 @@ restify.CORS.ALLOW_HEADERS.push('authorization');
 server.use(restify.CORS());
 server.use(restify.fullResponse());
 
-server.use(jwt({secret: secret.Secret}));
+//server.use(jwt({secret: secret.Secret}));
 
 var msg = require('dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js');
 
@@ -44,7 +44,7 @@ var token = format("Bearer {0}",config.Services.accessToken);
 
 server.post('/DVP/API/:version/Billing/BuyPackage',authorization({resource:"billing", action:"write"}), buyPackage.execute);
 server.post('/DVP/API/:version/Billing/updateRatings',authorization({resource:"billing", action:"write"}), ratings.updateRatings);
-server.post('/DVP/API/:version/Billing/validateToken',authorization({resource:"billing", action:"write"}), validateToken.validateToken);
+server.post('/DVP/API/:version/Billing/validateToken', validateToken.validateToken);
 
 
 

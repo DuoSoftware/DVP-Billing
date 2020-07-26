@@ -20,9 +20,9 @@ var redisdb = Config.Redis.redisdb;
 
 
 
-var redisSetting =  {
-    port:redisport,
-    host:redisip,
+var redisSetting = {
+    port: redisport,
+    host: redisip,
     family: 4,
     password: redispass,
     db: redisdb,
@@ -36,26 +36,26 @@ var redisSetting =  {
     }
 };
 
-if(redismode == 'sentinel'){
+if (redismode == 'sentinel') {
 
-    if(Config.Redis.sentinels && Config.Redis.sentinels.hosts && Config.Redis.sentinels.port && Config.Redis.sentinels.name){
+    if (Config.Redis.sentinels && Config.Redis.sentinels.hosts && Config.Redis.sentinels.port && Config.Redis.sentinels.name) {
         var sentinelHosts = Config.Redis.sentinels.hosts.split(',');
-        if(Array.isArray(sentinelHosts) && sentinelHosts.length > 2){
+        if (Array.isArray(sentinelHosts) && sentinelHosts.length > 2) {
             var sentinelConnections = [];
 
-            sentinelHosts.forEach(function(item){
+            sentinelHosts.forEach(function (item) {
 
-                sentinelConnections.push({host: item, port:Config.Redis.sentinels.port})
+                sentinelConnections.push({ host: item, port: Config.Redis.sentinels.port })
 
             })
 
             redisSetting = {
-                sentinels:sentinelConnections,
+                sentinels: sentinelConnections,
                 name: Config.Redis.sentinels.name,
                 password: redispass
             }
 
-        }else{
+        } else {
 
             console.log("No enough sentinel servers found .........");
         }
@@ -65,26 +65,27 @@ if(redismode == 'sentinel'){
 
 var client = undefined;
 
-if(redismode != "cluster") {
+if (redismode != "cluster") {
     client = new redis(redisSetting);
-}else{
+} else {
 
     var redisHosts = redisip.split(",");
-    if(Array.isArray(redisHosts)){
+    if (Array.isArray(redisHosts)) {
 
 
         redisSetting = [];
-        redisHosts.forEach(function(item){
+        redisHosts.forEach(function (item) {
             redisSetting.push({
                 host: item,
                 port: redisport,
                 family: 4,
-                password: redispass});
+                password: redispass
+            });
         });
 
         var client = new redis.Cluster([redisSetting]);
 
-    }else{
+    } else {
 
         client = new redis(redisSetting);
     }
@@ -106,32 +107,32 @@ client.on("connect", function (err) {
 });*/
 
 
-function validateToken(response){
+function validateToken(response) {
 
 
     //var key = Config.Host.TenantName + "_BILL_TOKEN";
     //var key2 = Config.Host.TenantName + "_BILL_HASH_TOKEN";
 
-    var key = "1_BILL_TOKEN";
-    var key2 = "1_BILL_HASH_TOKEN";
+    var key = config.Tenant.activeTenant + "_BILL_TOKEN";
+    var key2 = config.Tenant.activeTenant + "_BILL_HASH_TOKEN";
 
-    get(key, function(err, found1){
+    get(key, function (err, found1) {
 
-        get(key2 , function (err2, found2){
+        get(key2, function (err2, found2) {
 
             var jsonString;
-            if(found1 == Encrypt(found2,'DuoS123412341234') ){
+            if (found1 == Encrypt(found2, 'DuoS123412341234')) {
                 console.log('Valid Bill Token');
                 jsonString = messageFormatter.FormatMessage(undefined, 'EXCEPTION', true);
                 response(jsonString);
 
             }
-            else if (err){
+            else if (err) {
                 console.log('Redis Error');
                 jsonString = messageFormatter.FormatMessage(undefined, 'EXCEPTION', false);
                 response(jsonString);
             }
-            else{
+            else {
                 console.log('Invalid Bill Token');
                 jsonString = messageFormatter.FormatMessage(undefined, 'EXCEPTION', false);
                 response(jsonString);
@@ -151,7 +152,7 @@ function validateToken(response){
 
 function Encrypt(plainText, workingKey) {
 
-    var key =workingKey;
+    var key = workingKey;
     var iv = '0123456789@#$%&*';
     var cipher = crypto.createCipheriv('aes-128-ctr', key, iv);
     var encoded = cipher.update(plainText, 'utf8', 'hex');
@@ -162,27 +163,36 @@ function Encrypt(plainText, workingKey) {
 
 
 
-function save(key, object, callback){
-    client.set(key, object, function(err, reply) {
+function save(key, object, callback, ex) {
+    if (ex && ex > 0) {
+        client.set(key, object, 'ex', ex, function (err, reply) {
+            //console.log('Redis Response :'+reply);
+            if (callback) {
+                callback(err, reply);
+            }
+        });
+    } else {
+        client.set(key, object, function (err, reply) {
+            //console.log('Redis Response :'+reply);
+            if (callback) {
+                callback(err, reply);
+            }
+        });
+    }
+}
+function del(key) {
+
+    client.del(key, function (err, reply) {
         //console.log('Redis Response :'+reply);
         callback(err, reply);
     });
 
 
 }
-function del(key){
 
-    client.del(key, function(err, reply) {
-        //console.log('Redis Response :'+reply);
-        callback(err, reply);
-    });
+function get(key, callback) {
 
-
-}
-
-function get(key, callback){
-
-    client.get(key, function(err, reply) {
+    client.get(key, function (err, reply) {
         //console.log('Redis Response :'+reply);
         callback(err, reply);
     });
