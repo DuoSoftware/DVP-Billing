@@ -61,6 +61,11 @@ module.exports = {
 		"emailUserArray" : ["kalana@duosoftware.com","champaka@duosoftware.com"]
     },
 
+    "Tenant":
+        {
+          "activeTenant":"1"
+        },
+
     "LBServer" : {
 
         "ip": "localhost",

@@ -78,6 +78,10 @@ module.exports = {
         "TenantName": "HOST_TENANT_NAME"
 
     },
+    "Tenant":
+        {
+            "activeTenant": "SYS_ACTIVE_TENANT"
+        },
 
     "LBServer" : {
 
